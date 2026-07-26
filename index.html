@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="./styles.css">
+<script src="./_ds/modernist-56fc873e-90c3-48d1-8a0f-883f4f6e93cd/_ds_bundle.js"></script>
+<script src="./image-slot.js"></script>
+<style>
+body{background:#191817}
+body:has(#pf[data-theme='light']){background:#f3f2f2}
+#pf[data-theme='dark']{--color-bg:#191817;--color-surface:#242221;--color-text:#f3f2f2;--color-divider:color-mix(in srgb,#f3f2f2 26%,transparent);--shadow-sm:0 1px 2px rgba(0,0,0,.5);--shadow-md:0 3px 10px rgba(0,0,0,.5);--shadow-lg:0 12px 32px rgba(0,0,0,.6)}
+#pf[data-theme='dark'] .tag-accent{background:#4d170e;color:#ffc4b8}
+#pf[data-theme='dark'] .tag-neutral{background:#2d2b2b;color:#d7d3d3}
+#pf a{color:var(--color-accent)}
+#pf a:hover{color:var(--color-accent-400)}
+#pf button[data-active='true']{color:var(--color-accent)}
+#pf [data-gs='on']{filter:grayscale(1) contrast(1.08)}
+#pf [data-navrow] [data-acts]{opacity:0;transition:opacity .12s}
+#pf [data-navrow]:hover [data-acts],#pf [data-navrow]:focus-within [data-acts]{opacity:1}
+#pf[data-editing='false'] [data-acts],#pf[data-editing='false'] [data-editonly]{display:none !important}
+#pf[data-editing='false'] image-slot{pointer-events:none}
+#pf[data-editing='true'] [contenteditable='true']{box-shadow:inset 0 -1px 0 color-mix(in srgb,var(--color-accent) 35%,transparent)}
+#pf [contenteditable='true']:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+</style>
+</helmet>
+<div id="pf" data-theme="{{ theme }}" data-editing="{{ editing }}" style="display: flex; min-height: 100vh; background: var(--color-bg); color: var(--color-text); font-family: var(--font-body);">
+  <button onClick="{{ menuToggle }}" title="Show / hide menu" style="position: fixed; top: 16px; left: 16px; z-index: 20; background: var(--color-bg); border: 2px solid var(--color-divider); padding: 8px; cursor: pointer; color: var(--color-text); display: flex;" style-hover="border-color: var(--color-accent); color: var(--color-accent)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg></button>
+  <aside style="width: {{ menuWidth }}; overflow-x: hidden; overflow-y: auto; flex: none; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; border-right: {{ menuBorder }}; padding: {{ menuPad }}; transition: width .2s, padding .2s; box-sizing: border-box; white-space: nowrap;">
+    <div contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ ab.saveSideName }}" style="font-family: var(--font-heading); font-weight: 800; font-size: 18px; line-height: 1.15; letter-spacing: -0.01em; text-transform: uppercase; margin-top: 40px; max-width: 216px; white-space: normal; outline-offset: 4px;">{{ ab.sideName }}</div>
+    <div contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ ab.saveSideRole }}" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-accent); margin-top: 6px; max-width: 216px; white-space: normal; outline-offset: 3px;">{{ ab.sideRole }}</div>
+    <nav style="display: flex; flex-direction: column; gap: 2px; margin-top: 32px;">
+      <div style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.5; margin-bottom: 8px;">Index</div>
+      <button onClick="{{ home.go }}" data-active="{{ home.act }}" style="display: flex; gap: 10px; align-items: baseline; background: none; border: none; padding: 8px 0; cursor: pointer; color: inherit; font: inherit; font-size: 14px; text-align: left;" style-hover="color: var(--color-accent)"><span style="font-size: 11px; opacity: 0.5; width: 18px; flex: none;">00</span>About &amp; skills</button>
+      <sc-for list="{{ navItems }}" as="it" hint-placeholder-count="5">
+        <div data-navrow="1" style="display: flex; align-items: center; gap: 4px;">
+          <button onClick="{{ it.go }}" data-active="{{ it.act }}" style="flex: 1; min-width: 0; display: flex; gap: 10px; align-items: baseline; background: none; border: none; padding: 8px 0; cursor: pointer; color: inherit; font: inherit; font-size: 14px; text-align: left;" style-hover="color: var(--color-accent)"><span style="font-size: 11px; opacity: 0.5; width: 18px; flex: none;">{{ it.num }}</span><span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ it.title }}</span></button>
+          <span data-acts="1" style="display: flex; gap: 2px; flex: none;">
+            <button onClick="{{ it.rename }}" title="Rename page" style="background: none; border: none; padding: 3px; cursor: pointer; color: inherit; opacity: 0.6; display: flex;" style-hover="color: var(--color-accent); opacity: 1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>
+            <button onClick="{{ it.del }}" title="Delete page" style="background: none; border: none; padding: 3px; cursor: pointer; color: inherit; opacity: 0.6; display: flex;" style-hover="color: var(--color-accent); opacity: 1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+          </span>
+        </div>
+      </sc-for>
+      <button onClick="{{ addProject }}" data-editonly="1" style="display: flex; gap: 10px; align-items: baseline; background: none; border: none; border-top: 1px solid var(--color-divider); margin-top: 8px; padding: 12px 0 8px; cursor: pointer; color: var(--color-accent); font-family: var(--font-heading); font-weight: 800; font-size: 13px; text-align: left;" style-hover="color: var(--color-accent-400)"><span style="font-size: 13px; width: 18px; flex: none;">+</span>Add project</button>
+    </nav>
+    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding-top: 24px; border-top: 2px solid var(--color-divider); font-size: 13px;">
+      <sc-if value="{{ isEditing }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ lockToggle }}" class="btn btn-primary btn-block" style="cursor: pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M20 6 9 17l-5-5"></path></svg>Save &amp; lock</button>
+      </sc-if>
+      <sc-if value="{{ isLocked }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ lockToggle }}" class="btn btn-secondary btn-block" style="cursor: pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><rect width="18" height="11" x="3" y="11" rx="0" ry="0"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>Unlock to edit</button>
+      </sc-if>
+      <div style="font-size: 11px; opacity: 0.5;">{{ lockHint }}</div>
+
+    </div>
+  </aside>
+  <main style="flex: 1; min-width: 0; padding: 56px 64px; max-width: 920px;">
+
+    <sc-if value="{{ home.show }}" hint-placeholder-val="{{ true }}">
+      <section data-screen-label="About & skills">
+        <div style="font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-accent); margin-bottom: 12px;">Portfolio</div>
+        <h1 contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ ab.saveName }}" style="margin: 0 0 8px; outline-offset: 4px;">{{ ab.name }}</h1>
+        <p contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ ab.saveTagline }}" style="font-size: 18px; margin: 0 0 24px; opacity: 0.85; outline-offset: 4px;">{{ ab.tagline }}</p>
+        <sc-for list="{{ ab.sections }}" as="sec" hint-placeholder-count="1">
+          <div>
+            <hr class="hr">
+            <div data-navrow="1" style="display: flex; align-items: center; gap: 8px; margin: 24px 0 12px;">
+              <h6 contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ sec.saveHeading }}" style="margin: 0; outline-offset: 4px;">{{ sec.heading }}</h6>
+              <button onClick="{{ sec.del }}" data-acts="1" title="Delete section" style="background: none; border: none; padding: 3px; cursor: pointer; color: inherit; opacity: 0.6; display: flex;" style-hover="color: var(--color-accent); opacity: 1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+            </div>
+            <p contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ sec.saveBody }}" style="max-width: 640px; outline-offset: 4px;">{{ sec.body }}</p>
+          </div>
+        </sc-for>
+        <button onClick="{{ ab.addSection }}" data-editonly="1" style="background: none; border: none; padding: 8px 0; cursor: pointer; color: var(--color-accent); font-family: var(--font-heading); font-weight: 800; font-size: 13px; text-align: left;" style-hover="color: var(--color-accent-400)">+ Add section</button>
+        <hr class="hr">
+        <h6 style="margin: 24px 0 16px;">Skills</h6>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+          <sc-for list="{{ ab.groups }}" as="g" hint-placeholder-count="3">
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <div data-navrow="1" style="display: flex; align-items: center; gap: 6px;">
+                <div contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ g.saveTitle }}" style="font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.5; outline-offset: 3px;">{{ g.title }}</div>
+                <button onClick="{{ g.del }}" data-acts="1" title="Delete group" style="background: none; border: none; padding: 2px; cursor: pointer; color: inherit; opacity: 0.6; display: flex;" style-hover="color: var(--color-accent); opacity: 1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                <sc-for list="{{ g.list }}" as="s" hint-placeholder-count="4"><span class="tag tag-neutral">{{ s }}</span></sc-for>
+              </div>
+              <div data-editonly="1" contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ g.saveSkills }}" style="font-size: 12px; opacity: 0.55; outline-offset: 3px;">{{ g.skills }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div data-editonly="1" style="display: flex; align-items: baseline; gap: 12px; margin-top: 12px;">
+          <button onClick="{{ ab.addGroup }}" style="background: none; border: none; padding: 8px 0; cursor: pointer; color: var(--color-accent); font-family: var(--font-heading); font-weight: 800; font-size: 13px; text-align: left;" style-hover="color: var(--color-accent-400)">+ Add skill group</button>
+          <span style="font-size: 11px; opacity: 0.45;">Skills are comma-separated — click the small line under the tags to edit.</span>
+        </div>
+        <hr class="hr" style="margin-top: 32px;">
+        <h6 style="margin: 24px 0 12px;">Contact &amp; links</h6>
+        <div style="display: flex; flex-direction: column; gap: 8px; max-width: 360px; font-size: 14px;">
+          <sc-for list="{{ links }}" as="lk" hint-placeholder-count="3">
+            <div data-navrow="1" style="display: flex; align-items: center; gap: 4px;">
+              <a href="{{ lk.url }}" target="_blank" rel="noopener" style="text-decoration: none; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ lk.label }}</a>
+              <span data-acts="1" style="display: flex; gap: 2px; flex: none;">
+                <button onClick="{{ lk.edit }}" title="Edit link" style="background: none; border: none; padding: 3px; cursor: pointer; color: inherit; opacity: 0.6; display: flex;" style-hover="color: var(--color-accent); opacity: 1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg></button>
+                <button onClick="{{ lk.del }}" title="Delete link" style="background: none; border: none; padding: 3px; cursor: pointer; color: inherit; opacity: 0.6; display: flex;" style-hover="color: var(--color-accent); opacity: 1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+              </span>
+            </div>
+          </sc-for>
+          <button onClick="{{ addLink }}" data-editonly="1" style="background: none; border: none; padding: 4px 0 0; cursor: pointer; color: var(--color-accent); font-family: var(--font-heading); font-weight: 800; font-size: 12px; text-align: left;" style-hover="color: var(--color-accent-400)">+ Add link</button>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ pj.show }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Project page">
+        <div style="font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-accent); margin-bottom: 12px;">Project {{ pj.num }}</div>
+        <h1 contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ pj.saveTitle }}" style="margin: 0 0 16px; outline-offset: 4px;">{{ pj.title }}</h1>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;">
+          <sc-for list="{{ pj.toolsList }}" as="t" hint-placeholder-count="3"><span class="tag tag-outline">{{ t }}</span></sc-for>
+        </div>
+        <div data-editonly="1" style="display: flex; gap: 8px; align-items: baseline; margin-bottom: 24px; font-size: 12px;">
+          <span style="opacity: 0.45; flex: none;">Tools (comma-separated, click to edit):</span>
+          <span contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ pj.saveTools }}" style="opacity: 0.7; outline-offset: 3px; min-width: 80px;">{{ pj.tools }}</span>
+        </div>
+        <sc-for list="{{ pj.sections }}" as="sec" hint-placeholder-count="3">
+          <div>
+            <hr class="hr">
+            <div data-navrow="1" style="display: flex; align-items: center; gap: 8px; margin: 24px 0 12px;">
+              <h6 contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ sec.saveHeading }}" style="margin: 0; outline-offset: 4px;">{{ sec.heading }}</h6>
+              <button onClick="{{ sec.del }}" data-acts="1" title="Delete section" style="background: none; border: none; padding: 3px; cursor: pointer; color: inherit; opacity: 0.6; display: flex;" style-hover="color: var(--color-accent); opacity: 1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+            </div>
+            <p contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ sec.saveBody }}" style="max-width: 640px; outline-offset: 4px;">{{ sec.body }}</p>
+          </div>
+        </sc-for>
+        <button onClick="{{ pj.addSection }}" data-editonly="1" style="background: none; border: none; padding: 8px 0; cursor: pointer; color: var(--color-accent); font-family: var(--font-heading); font-weight: 800; font-size: 13px; text-align: left;" style-hover="color: var(--color-accent-400)">+ Add section</button>
+        <hr class="hr">
+        <h6 style="margin: 24px 0 12px;">Images</h6>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;">
+          <sc-for list="{{ pj.shots }}" as="sh" hint-placeholder-count="2">
+            <div data-navrow="1" style="position: relative; height: 240px;">
+              <div data-gs="{{ gs }}" style="position: absolute; inset: 0;"><image-slot id="{{ sh.id }}" shape="rect" placeholder="Drop a screenshot or diagram"></image-slot></div>
+              <button onClick="{{ sh.del }}" data-acts="1" title="Remove image" style="position: absolute; top: 6px; right: 6px; z-index: 2; background: var(--color-bg); border: 1px solid var(--color-divider); padding: 4px; cursor: pointer; color: inherit; display: flex;" style-hover="color: var(--color-accent); border-color: var(--color-accent)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+            </div>
+          </sc-for>
+          <button onClick="{{ pj.addShot }}" data-editonly="1" style="height: 240px; border: 1px dashed var(--color-divider); background: none; cursor: pointer; color: inherit; opacity: 0.6; font-family: var(--font-heading); font-weight: 800; font-size: 13px;" style-hover="opacity: 1; border-color: var(--color-accent); color: var(--color-accent)">+ Add image</button>
+        </div>
+      </section>
+    </sc-if>
+
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 48px; border-top: 2px solid var(--color-divider); padding-top: 20px;">
+      <sc-if value="{{ pager.hasPrev }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ pager.prev }}" style="display: flex; align-items: center; gap: 8px; background: none; border: none; padding: 8px 0; cursor: pointer; color: inherit; font: inherit; font-size: 14px; text-align: left; min-width: 0;" style-hover="color: var(--color-accent)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg><span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ pager.prevTitle }}</span></button>
+      </sc-if>
+      <sc-if value="{{ pager.noPrev }}" hint-placeholder-val="{{ true }}"><span></span></sc-if>
+      <span style="font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.5; flex: none;">{{ pager.pos }}</span>
+      <sc-if value="{{ pager.hasNext }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ pager.next }}" style="display: flex; align-items: center; gap: 8px; background: none; border: none; padding: 8px 0; cursor: pointer; color: inherit; font: inherit; font-size: 14px; text-align: right; min-width: 0;" style-hover="color: var(--color-accent)"><span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ pager.nextTitle }}</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none;"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></button>
+      </sc-if>
+      <sc-if value="{{ pager.noNext }}" hint-placeholder-val="{{ false }}"><span></span></sc-if>
+    </div>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;'dark'|'light'&quot;,&quot;section&quot;:&quot;Appearance&quot;},&quot;photosGrayscale&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Appearance&quot;}}">
+class Component extends DCLogic {
+  state = { page: 'home', projects: Component.load(), about: Component.loadAbout(), editing: false, menuOpen: true };
+  async hash(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('pf-salt:' + str));
+    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
+  async lockToggle() {
+    if (this.state.editing) { this.setState({ editing: false }); return; }
+    const stored = localStorage.getItem('pf-passcode-hash');
+    if (!stored) {
+      const p1 = prompt('Set a passcode to protect editing (you\u2019ll need it to unlock):');
+      if (!p1 || !p1.trim()) return;
+      const p2 = prompt('Confirm passcode:');
+      if (p1 !== p2) { alert('Passcodes didn\u2019t match — try again.'); return; }
+      localStorage.setItem('pf-passcode-hash', await this.hash(p1));
+      this.setState({ editing: true });
+      return;
+    }
+    const p = prompt('Enter passcode to unlock editing:');
+    if (p === null) return;
+    if (await this.hash(p) === stored) this.setState({ editing: true });
+    else alert('Wrong passcode.');
+  }
+  static loadAbout() {
+    const defLinks = [
+      { id: 'l1', label: 'stephen@example.com', url: 'mailto:stephen@example.com' },
+      { id: 'l2', label: 'github.com/sdhawale', url: 'https://github.com/sdhawale' },
+      { id: 'l3', label: 'linkedin.com/in/sdhawale', url: 'https://linkedin.com/in/sdhawale' },
+    ];
+    try {
+      let a = JSON.parse(localStorage.getItem('pf-about-v1'));
+      if (a) {
+        if (!a.links) a = { ...a, links: defLinks };
+        if (!a.sideName) a = { ...a, sideName: a.name || 'Stephen Dhawale', sideRole: 'Data / ML Engineer' };
+        return a;
+      }
+    } catch (e) {}
+    return {
+      links: defLinks,
+      sideName: 'Stephen Dhawale',
+      sideRole: 'Data / ML Engineer',
+      name: 'Stephen Dhawale',
+      tagline: 'Data / ML engineer building reliable pipelines and production machine-learning systems.',
+      sections: [{ id: 'a1', heading: 'About', body: 'I design and operate data platforms end to end — from ingestion and orchestration through modeling and serving. I care about systems that are observable, testable, and cheap to run, and about turning messy source data into products teams actually trust. Currently focused on batch and streaming pipeline architecture, ML lifecycle tooling, and cloud data infrastructure.' }],
+      groups: [
+        { id: 'g1', title: 'Languages', skills: 'Python, SQL, Scala, Bash' },
+        { id: 'g2', title: 'Frameworks', skills: 'Airflow, PySpark, dbt, scikit-learn, Pandas' },
+        { id: 'g3', title: 'Tools & platforms', skills: 'AWS, Snowflake, Kafka, Docker, Kubernetes, Git' },
+      ],
+    };
+  }
+  saveAbout(about) {
+    localStorage.setItem('pf-about-v1', JSON.stringify(about));
+    this.setState({ about });
+  }
+  static load() {
+    const get = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+    const v2 = get('pf-projects-v2');
+    if (Array.isArray(v2)) return v2;
+    const meta = get('pf-page-meta') || { titles: {}, hidden: [] };
+    const olds = get('pf-extra-projects') || [];
+    const sec = (i, heading, body) => ({ id: 's' + i, heading, body });
+    const B = [
+      { id: 'p1', title: 'Airflow ETL Pipeline', tools: 'Apache Airflow, Python, PostgreSQL, Docker, AWS S3', shots: ['p1-shot1', 'p1-shot2'], sections: [
+        sec(1, 'Overview', 'Built a batch ETL platform orchestrated with Apache Airflow: daily DAGs extract data from operational databases and third-party APIs, stage it in S3, transform it with Python and SQL, and load curated tables into PostgreSQL for analytics. Everything runs in Docker with CI-tested DAG definitions.'),
+        sec(2, 'My role', 'Owned the pipeline end to end: designed the DAG structure, wrote extraction and transformation tasks, set up retries, SLAs and alerting, and containerized the deployment.'),
+        sec(3, 'Challenges & learnings', 'Handling late-arriving data and backfills without double-counting; learned to design idempotent tasks and use Airflow sensors and data-interval semantics properly.')] },
+      { id: 'p2', title: 'Churn Prediction Model', tools: 'scikit-learn, XGBoost, Pandas, MLflow', shots: ['p2-shot1'], sections: [
+        sec(1, 'Overview', 'Placeholder — describe the churn model here: the business problem, the dataset, feature engineering, model selection, and how predictions were delivered to the business.'),
+        sec(2, 'My role', 'Placeholder — what you owned and contributed.'),
+        sec(3, 'Challenges & learnings', 'Placeholder — what was hard and what you learned.')] },
+      { id: 'p3', title: 'Real-Time Streaming Analytics', tools: 'Kafka, Spark Streaming, Grafana', shots: ['p3-shot1'], sections: [
+        sec(1, 'Overview', 'Placeholder — describe the streaming system: event sources, throughput, processing topology, and what the live metrics powered.'),
+        sec(2, 'My role', 'Placeholder — what you owned and contributed.'),
+        sec(3, 'Challenges & learnings', 'Placeholder — what was hard and what you learned.')] },
+      { id: 'p4', title: 'Data Warehouse Migration', tools: 'dbt, Snowflake, Terraform', shots: ['p4-shot1'], sections: [
+        sec(1, 'Overview', 'Placeholder — describe the migration: source and target platforms, modeling approach, validation strategy, and cutover.'),
+        sec(2, 'My role', 'Placeholder — what you owned and contributed.'),
+        sec(3, 'Challenges & learnings', 'Placeholder — what was hard and what you learned.')] },
+      { id: 'p5', title: 'ML Feature Store', tools: 'Feast, Redis, Kubernetes', shots: ['p5-shot1'], sections: [
+        sec(1, 'Overview', 'Placeholder — describe the feature store: offline/online stores, feature definitions, serving latency, and which models consume it.'),
+        sec(2, 'My role', 'Placeholder — what you owned and contributed.'),
+        sec(3, 'Challenges & learnings', 'Placeholder — what was hard and what you learned.')] },
+    ];
+    return B.filter((p) => !meta.hidden.includes(p.id)).map((p) => ({ ...p, title: meta.titles[p.id] ?? p.title }))
+      .concat(olds.map((p) => ({ id: 'x' + p.id, title: p.title, tools: p.tools, shots: ['x' + p.id + '-shot1', 'x' + p.id + '-shot2'], sections: [sec(1, 'Overview', p.overview), sec(2, 'My role', p.role), sec(3, 'Challenges & learnings', p.challenges)] })));
+  }
+  save(projects, page) {
+    localStorage.setItem('pf-projects-v2', JSON.stringify(projects));
+    this.setState(page ? { projects, page } : { projects });
+  }
+  update(cur, patch, page) {
+    this.save(this.state.projects.map((p) => p === cur ? { ...p, ...patch } : p), page);
+  }
+  renderVals() {
+    const page = this.state.page, projects = this.state.projects;
+    const mk = (p) => ({ go: () => this.setState({ page: p }), act: String(page === p), show: page === p });
+    const navItems = projects.map((p, i) => ({
+      ...mk(p.id), num: String(i + 1).padStart(2, '0'), title: p.title,
+      rename: () => {
+        const t = prompt('Page name:', p.title);
+        if (t && t.trim()) this.update(p, { title: t.trim() });
+      },
+      del: () => {
+        if (confirm('Delete "' + p.title + '"? This cannot be undone.')) this.save(projects.filter((q) => q !== p), page === p.id ? 'home' : null);
+      },
+    }));
+    const cur = projects.find((p) => p.id === page);
+    const txt = (e) => e.target.textContent.trim();
+    const pj = cur ? {
+      show: true,
+      num: String(projects.indexOf(cur) + 1).padStart(2, '0'),
+      title: cur.title, tools: cur.tools,
+      toolsList: cur.tools.split(',').map((s) => s.trim()).filter(Boolean),
+      saveTitle: (e) => this.update(cur, { title: txt(e) }),
+      saveTools: (e) => this.update(cur, { tools: txt(e) }),
+      sections: cur.sections.map((s) => ({
+        heading: s.heading, body: s.body,
+        saveHeading: (e) => this.update(cur, { sections: cur.sections.map((q) => q === s ? { ...q, heading: txt(e) } : q) }),
+        saveBody: (e) => this.update(cur, { sections: cur.sections.map((q) => q === s ? { ...q, body: txt(e) } : q) }),
+        del: () => {
+          if (confirm('Delete section "' + s.heading + '"?')) this.update(cur, { sections: cur.sections.filter((q) => q !== s) });
+        },
+      })),
+      addSection: () => this.update(cur, { sections: [...cur.sections, { id: 's' + Date.now().toString(36), heading: 'New section', body: 'Write about it here — click to edit.' }] }),
+      shots: cur.shots.map((sid) => ({
+        id: sid,
+        del: () => {
+          if (confirm('Remove this image?')) this.update(cur, { shots: cur.shots.filter((q) => q !== sid) });
+        },
+      })),
+      addShot: () => this.update(cur, { shots: [...cur.shots, cur.id + '-shot-' + Date.now().toString(36)] }),
+    } : { show: false };
+    const about = this.state.about;
+    const upA = (patch) => this.saveAbout({ ...about, ...patch });
+    const ab = {
+      name: about.name, tagline: about.tagline,
+      sideName: about.sideName || about.name, sideRole: about.sideRole || 'Data / ML Engineer',
+      saveSideName: (e) => upA({ sideName: txt(e) }),
+      saveSideRole: (e) => upA({ sideRole: txt(e) }),
+      saveName: (e) => upA({ name: txt(e) }),
+      saveTagline: (e) => upA({ tagline: txt(e) }),
+      sections: about.sections.map((s) => ({
+        heading: s.heading, body: s.body,
+        saveHeading: (e) => upA({ sections: about.sections.map((q) => q === s ? { ...q, heading: txt(e) } : q) }),
+        saveBody: (e) => upA({ sections: about.sections.map((q) => q === s ? { ...q, body: txt(e) } : q) }),
+        del: () => {
+          if (confirm('Delete section "' + s.heading + '"?')) upA({ sections: about.sections.filter((q) => q !== s) });
+        },
+      })),
+      addSection: () => upA({ sections: [...about.sections, { id: 'a' + Date.now().toString(36), heading: 'New section', body: 'Write about it here — click to edit.' }] }),
+      groups: about.groups.map((g) => ({
+        title: g.title, skills: g.skills,
+        list: g.skills.split(',').map((s) => s.trim()).filter(Boolean),
+        saveTitle: (e) => upA({ groups: about.groups.map((q) => q === g ? { ...q, title: txt(e) } : q) }),
+        saveSkills: (e) => upA({ groups: about.groups.map((q) => q === g ? { ...q, skills: txt(e) } : q) }),
+        del: () => {
+          if (confirm('Delete skill group "' + g.title + '"?')) upA({ groups: about.groups.filter((q) => q !== g) });
+        },
+      })),
+      links: (about.links || []).map((l) => ({
+        label: l.label, url: l.url,
+        edit: () => {
+          const label = prompt('Link text (what visitors see):', l.label);
+          if (label === null || !label.trim()) return;
+          const url = prompt('Link URL (https://\u2026 or mailto:\u2026):', l.url);
+          if (url === null || !url.trim()) return;
+          upA({ links: about.links.map((q) => q === l ? { ...q, label: label.trim(), url: url.trim() } : q) });
+        },
+        del: () => {
+          if (confirm('Delete link "' + l.label + '"?')) upA({ links: about.links.filter((q) => q !== l) });
+        },
+      })),
+      addLink: () => {
+        const label = prompt('Link text (what visitors see):', 'twitter.com/handle');
+        if (label === null || !label.trim()) return;
+        const url = prompt('Link URL (https://\u2026 or mailto:\u2026):', 'https://');
+        if (url === null || !url.trim()) return;
+        upA({ links: [...about.links, { id: 'l' + Date.now().toString(36), label: label.trim(), url: url.trim() }] });
+      },
+      addGroup: () => upA({ groups: [...about.groups, { id: 'g' + Date.now().toString(36), title: 'New group', skills: 'Skill one, Skill two' }] }),
+    };
+    const editing = this.state.editing;
+    const menuOpen = this.state.menuOpen;
+    const pageList = [{ id: 'home', title: 'About & skills' }].concat(projects.map((p) => ({ id: p.id, title: p.title })));
+    const idx = Math.max(0, pageList.findIndex((p) => p.id === page));
+    const pager = {
+      hasPrev: idx > 0, noPrev: idx === 0,
+      hasNext: idx < pageList.length - 1, noNext: idx === pageList.length - 1,
+      prevTitle: idx > 0 ? pageList[idx - 1].title : '',
+      nextTitle: idx < pageList.length - 1 ? pageList[idx + 1].title : '',
+      prev: () => this.setState({ page: pageList[idx - 1].id }),
+      next: () => this.setState({ page: pageList[idx + 1].id }),
+      pos: (idx + 1) + ' / ' + pageList.length + ' — ' + pageList[idx].title,
+    };
+    return {
+      pager,
+      menuToggle: () => this.setState({ menuOpen: !menuOpen }),
+      menuWidth: menuOpen ? '264px' : '0px',
+      menuPad: menuOpen ? '32px 24px' : '32px 0',
+      menuBorder: menuOpen ? '2px solid var(--color-divider)' : 'none',
+      editing: String(editing),
+      editable: editing ? 'true' : 'false',
+      isEditing: editing,
+      isLocked: !editing,
+      lockToggle: () => this.lockToggle(),
+      lockHint: editing ? 'Editing unlocked — changes save automatically as you click away. Save & lock when done.' : (localStorage.getItem('pf-passcode-hash') ? 'Content is locked. Unlock with your passcode to edit.' : 'No passcode set yet — click Unlock to create one.'),
+      theme: this.props.theme ?? 'dark',
+      gs: (this.props.photosGrayscale ?? true) ? 'on' : 'off',
+      home: mk('home'), navItems, pj, ab, links: ab.links, addLink: ab.addLink,
+      addProject: () => {
+        const id = 'x' + Date.now().toString(36);
+        this.save([...projects, { id, title: 'New Project', tools: 'Tool one, Tool two', shots: [id + '-shot1'], sections: [
+          { id: 's1', heading: 'Overview', body: 'Describe the project: the problem, your approach, and the outcome.' },
+          { id: 's2', heading: 'My role', body: 'What you owned and contributed.' },
+          { id: 's3', heading: 'Challenges & learnings', body: 'What was hard and what you learned.' },
+        ] }], id);
+      },
+    };
+  }
+}
+</script>
+</body>
+</html>
