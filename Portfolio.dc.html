@@ -67,9 +67,10 @@ body:has(#pf[data-theme='light']){background:#f3f2f2}
         <h1 contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ ab.saveName }}" style="margin: 0 0 8px; outline-offset: 4px;">{{ ab.name }}</h1>
         <p contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ ab.saveTagline }}" style="font-size: 18px; margin: 0 0 24px; opacity: 0.85; outline-offset: 4px;">{{ ab.tagline }}</p>
         <sc-for list="{{ ab.sections }}" as="sec" hint-placeholder-count="1">
-          <div>
+          <div onDragOver="{{ sec.dragOver }}" onDrop="{{ sec.drop }}">
             <hr class="hr">
             <div data-navrow="1" style="display: flex; align-items: center; gap: 8px; margin: 24px 0 12px;">
+              <span draggable="true" onDragStart="{{ sec.dragStart }}" data-editonly="1" title="Drag to reorder" style="cursor: grab; opacity: 0.5; display: flex; flex: none;" style-hover="opacity: 1; color: var(--color-accent)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg></span>
               <h6 contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ sec.saveHeading }}" style="margin: 0; outline-offset: 4px;">{{ sec.heading }}</h6>
               <button onClick="{{ sec.del }}" data-acts="1" title="Delete section" style="background: none; border: none; padding: 3px; cursor: pointer; color: inherit; opacity: 0.6; display: flex;" style-hover="color: var(--color-accent); opacity: 1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
             </div>
@@ -125,27 +126,38 @@ body:has(#pf[data-theme='light']){background:#f3f2f2}
           <span style="opacity: 0.45; flex: none;">Tools (comma-separated, click to edit):</span>
           <span contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ pj.saveTools }}" style="opacity: 0.7; outline-offset: 3px; min-width: 80px;">{{ pj.tools }}</span>
         </div>
-        <sc-for list="{{ pj.sections }}" as="sec" hint-placeholder-count="3">
-          <div>
+        <sc-for list="{{ pj.blocks }}" as="sec" hint-placeholder-count="3">
+          <div onDragOver="{{ sec.dragOver }}" onDrop="{{ sec.drop }}">
             <hr class="hr">
             <div data-navrow="1" style="display: flex; align-items: center; gap: 8px; margin: 24px 0 12px;">
+              <span draggable="true" onDragStart="{{ sec.dragStart }}" data-editonly="1" title="Drag to reorder" style="cursor: grab; opacity: 0.5; display: flex; flex: none;" style-hover="opacity: 1; color: var(--color-accent)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg></span>
               <h6 contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ sec.saveHeading }}" style="margin: 0; outline-offset: 4px;">{{ sec.heading }}</h6>
-              <button onClick="{{ sec.del }}" data-acts="1" title="Delete section" style="background: none; border: none; padding: 3px; cursor: pointer; color: inherit; opacity: 0.6; display: flex;" style-hover="color: var(--color-accent); opacity: 1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+              <span data-acts="1" style="display: flex; gap: 2px; flex: none;">
+                <button onClick="{{ sec.up }}" title="Move up" style="background: none; border: none; padding: 3px; cursor: pointer; color: inherit; opacity: 0.6; display: flex;" style-hover="color: var(--color-accent); opacity: 1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"></path></svg></button>
+                <button onClick="{{ sec.down }}" title="Move down" style="background: none; border: none; padding: 3px; cursor: pointer; color: inherit; opacity: 0.6; display: flex;" style-hover="color: var(--color-accent); opacity: 1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></button>
+                <button onClick="{{ sec.del }}" title="Delete section" style="background: none; border: none; padding: 3px; cursor: pointer; color: inherit; opacity: 0.6; display: flex;" style-hover="color: var(--color-accent); opacity: 1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+              </span>
             </div>
-            <p contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ sec.saveBody }}" style="max-width: 640px; outline-offset: 4px;">{{ sec.body }}</p>
+            <sc-if value="{{ sec.isText }}" hint-placeholder-val="{{ true }}">
+              <p contentEditable="{{ editable }}" suppressContentEditableWarning="true" onBlur="{{ sec.saveBody }}" style="max-width: 640px; outline-offset: 4px;">{{ sec.body }}</p>
+            </sc-if>
+            <sc-if value="{{ sec.isImages }}" hint-placeholder-val="{{ false }}">
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                <sc-for list="{{ sec.shots }}" as="sh" hint-placeholder-count="2">
+                  <div data-navrow="1" style="position: relative; height: 240px;">
+                    <div data-gs="{{ gs }}" style="position: absolute; inset: 0;"><image-slot id="{{ sh.id }}" shape="rect" placeholder="Drop a screenshot or diagram"></image-slot></div>
+                    <button onClick="{{ sh.del }}" data-acts="1" title="Remove image" style="position: absolute; top: 6px; right: 6px; z-index: 2; background: var(--color-bg); border: 1px solid var(--color-divider); padding: 4px; cursor: pointer; color: inherit; display: flex;" style-hover="color: var(--color-accent); border-color: var(--color-accent)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+                  </div>
+                </sc-for>
+                <button onClick="{{ sec.addShot }}" data-editonly="1" style="height: 240px; border: 1px dashed var(--color-divider); background: none; cursor: pointer; color: inherit; opacity: 0.6; font-family: var(--font-heading); font-weight: 800; font-size: 13px;" style-hover="opacity: 1; border-color: var(--color-accent); color: var(--color-accent)">+ Add image</button>
+              </div>
+            </sc-if>
           </div>
         </sc-for>
-        <button onClick="{{ pj.addSection }}" data-editonly="1" style="background: none; border: none; padding: 8px 0; cursor: pointer; color: var(--color-accent); font-family: var(--font-heading); font-weight: 800; font-size: 13px; text-align: left;" style-hover="color: var(--color-accent-400)">+ Add section</button>
-        <hr class="hr">
-        <h6 style="margin: 24px 0 12px;">Images</h6>
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px;">
-          <sc-for list="{{ pj.shots }}" as="sh" hint-placeholder-count="2">
-            <div data-navrow="1" style="position: relative; height: 240px;">
-              <div data-gs="{{ gs }}" style="position: absolute; inset: 0;"><image-slot id="{{ sh.id }}" shape="rect" placeholder="Drop a screenshot or diagram"></image-slot></div>
-              <button onClick="{{ sh.del }}" data-acts="1" title="Remove image" style="position: absolute; top: 6px; right: 6px; z-index: 2; background: var(--color-bg); border: 1px solid var(--color-divider); padding: 4px; cursor: pointer; color: inherit; display: flex;" style-hover="color: var(--color-accent); border-color: var(--color-accent)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
-            </div>
-          </sc-for>
-          <button onClick="{{ pj.addShot }}" data-editonly="1" style="height: 240px; border: 1px dashed var(--color-divider); background: none; cursor: pointer; color: inherit; opacity: 0.6; font-family: var(--font-heading); font-weight: 800; font-size: 13px;" style-hover="opacity: 1; border-color: var(--color-accent); color: var(--color-accent)">+ Add image</button>
+        <div data-editonly="1" style="display: flex; gap: 20px;">
+          <button onClick="{{ pj.addSection }}" style="background: none; border: none; padding: 8px 0; cursor: pointer; color: var(--color-accent); font-family: var(--font-heading); font-weight: 800; font-size: 13px; text-align: left;" style-hover="color: var(--color-accent-400)">+ Add section</button>
+          <button onClick="{{ pj.addGallery }}" style="background: none; border: none; padding: 8px 0; cursor: pointer; color: var(--color-accent); font-family: var(--font-heading); font-weight: 800; font-size: 13px; text-align: left;" style-hover="color: var(--color-accent-400)">+ Add image gallery</button>
+          <span style="font-size: 11px; opacity: 0.45; align-self: center;">Drag the grip (or use the arrows) beside a heading to reorder sections.</span>
         </div>
       </section>
     </sc-if>
@@ -223,8 +235,14 @@ class Component extends DCLogic {
   }
   static load() {
     const get = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+    const norm = (p) => {
+      if (p.blocks) return p;
+      const blocks = (p.sections || []).map((s) => ({ type: 'text', ...s }));
+      blocks.push({ type: 'images', id: 'imgs-' + p.id, heading: 'Images', shots: p.shots || [] });
+      return { id: p.id, title: p.title, tools: p.tools, blocks };
+    };
     const v2 = get('pf-projects-v2');
-    if (Array.isArray(v2)) return v2;
+    if (Array.isArray(v2)) return v2.map(norm);
     const meta = get('pf-page-meta') || { titles: {}, hidden: [] };
     const olds = get('pf-extra-projects') || [];
     const sec = (i, heading, body) => ({ id: 's' + i, heading, body });
@@ -251,7 +269,8 @@ class Component extends DCLogic {
         sec(3, 'Challenges & learnings', 'Placeholder — what was hard and what you learned.')] },
     ];
     return B.filter((p) => !meta.hidden.includes(p.id)).map((p) => ({ ...p, title: meta.titles[p.id] ?? p.title }))
-      .concat(olds.map((p) => ({ id: 'x' + p.id, title: p.title, tools: p.tools, shots: ['x' + p.id + '-shot1', 'x' + p.id + '-shot2'], sections: [sec(1, 'Overview', p.overview), sec(2, 'My role', p.role), sec(3, 'Challenges & learnings', p.challenges)] })));
+      .concat(olds.map((p) => ({ id: 'x' + p.id, title: p.title, tools: p.tools, shots: ['x' + p.id + '-shot1', 'x' + p.id + '-shot2'], sections: [sec(1, 'Overview', p.overview), sec(2, 'My role', p.role), sec(3, 'Challenges & learnings', p.challenges)] })))
+      .map(norm);
   }
   save(projects, page) {
     localStorage.setItem('pf-projects-v2', JSON.stringify(projects));
@@ -282,22 +301,36 @@ class Component extends DCLogic {
       toolsList: cur.tools.split(',').map((s) => s.trim()).filter(Boolean),
       saveTitle: (e) => this.update(cur, { title: txt(e) }),
       saveTools: (e) => this.update(cur, { tools: txt(e) }),
-      sections: cur.sections.map((s) => ({
-        heading: s.heading, body: s.body,
-        saveHeading: (e) => this.update(cur, { sections: cur.sections.map((q) => q === s ? { ...q, heading: txt(e) } : q) }),
-        saveBody: (e) => this.update(cur, { sections: cur.sections.map((q) => q === s ? { ...q, body: txt(e) } : q) }),
-        del: () => {
-          if (confirm('Delete section "' + s.heading + '"?')) this.update(cur, { sections: cur.sections.filter((q) => q !== s) });
-        },
-      })),
-      addSection: () => this.update(cur, { sections: [...cur.sections, { id: 's' + Date.now().toString(36), heading: 'New section', body: 'Write about it here — click to edit.' }] }),
-      shots: cur.shots.map((sid) => ({
-        id: sid,
-        del: () => {
-          if (confirm('Remove this image?')) this.update(cur, { shots: cur.shots.filter((q) => q !== sid) });
-        },
-      })),
-      addShot: () => this.update(cur, { shots: [...cur.shots, cur.id + '-shot-' + Date.now().toString(36)] }),
+      blocks: cur.blocks.map((s, i) => {
+        const upBlock = (patch) => this.update(cur, { blocks: cur.blocks.map((q) => q === s ? { ...q, ...patch } : q) });
+        const move = (to) => {
+          if (to < 0 || to >= cur.blocks.length) return;
+          const b = [...cur.blocks]; b.splice(i, 1); b.splice(to, 0, s);
+          this.update(cur, { blocks: b });
+        };
+        return {
+          heading: s.heading, body: s.body || '',
+          isText: s.type !== 'images', isImages: s.type === 'images',
+          saveHeading: (e) => upBlock({ heading: txt(e) }),
+          saveBody: (e) => upBlock({ body: txt(e) }),
+          del: () => {
+            if (confirm('Delete section "' + s.heading + '"?')) this.update(cur, { blocks: cur.blocks.filter((q) => q !== s) });
+          },
+          up: () => move(i - 1), down: () => move(i + 1),
+          dragStart: (e) => { this._dragP = i; e.dataTransfer.effectAllowed = 'move'; },
+          dragOver: (e) => { if (this._dragP != null) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; } },
+          drop: (e) => { e.preventDefault(); const from = this._dragP; this._dragP = null; if (from == null || from === i) return; const b = [...cur.blocks]; const [m] = b.splice(from, 1); b.splice(i, 0, m); this.update(cur, { blocks: b }); },
+          shots: (s.shots || []).map((sid) => ({
+            id: sid,
+            del: () => {
+              if (confirm('Remove this image?')) upBlock({ shots: s.shots.filter((q) => q !== sid) });
+            },
+          })),
+          addShot: () => upBlock({ shots: [...(s.shots || []), cur.id + '-shot-' + Date.now().toString(36)] }),
+        };
+      }),
+      addSection: () => this.update(cur, { blocks: [...cur.blocks, { type: 'text', id: 's' + Date.now().toString(36), heading: 'New section', body: 'Write about it here — click to edit.' }] }),
+      addGallery: () => this.update(cur, { blocks: [...cur.blocks, { type: 'images', id: 'imgs-' + Date.now().toString(36), heading: 'Images', shots: [cur.id + '-shot-' + Date.now().toString(36)] }] }),
     } : { show: false };
     const about = this.state.about;
     const upA = (patch) => this.saveAbout({ ...about, ...patch });
@@ -308,13 +341,16 @@ class Component extends DCLogic {
       saveSideRole: (e) => upA({ sideRole: txt(e) }),
       saveName: (e) => upA({ name: txt(e) }),
       saveTagline: (e) => upA({ tagline: txt(e) }),
-      sections: about.sections.map((s) => ({
+      sections: about.sections.map((s, i) => ({
         heading: s.heading, body: s.body,
         saveHeading: (e) => upA({ sections: about.sections.map((q) => q === s ? { ...q, heading: txt(e) } : q) }),
         saveBody: (e) => upA({ sections: about.sections.map((q) => q === s ? { ...q, body: txt(e) } : q) }),
         del: () => {
           if (confirm('Delete section "' + s.heading + '"?')) upA({ sections: about.sections.filter((q) => q !== s) });
         },
+        dragStart: (e) => { this._dragA = i; e.dataTransfer.effectAllowed = 'move'; },
+        dragOver: (e) => { if (this._dragA != null) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; } },
+        drop: (e) => { e.preventDefault(); const from = this._dragA; this._dragA = null; if (from == null || from === i) return; const b = [...about.sections]; const [m] = b.splice(from, 1); b.splice(i, 0, m); upA({ sections: b }); },
       })),
       addSection: () => upA({ sections: [...about.sections, { id: 'a' + Date.now().toString(36), heading: 'New section', body: 'Write about it here — click to edit.' }] }),
       groups: about.groups.map((g) => ({
