@@ -187,10 +187,11 @@
     loadP = fetch(STATE_FILE)
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
-        // Merge in the localStorage fallback under the sidecar (sidecar wins
-        // per-key when both exist), then let in-memory changes win over both.
+        // Merge in the localStorage fallback OVER the sidecar (local edits
+        // are newer than the last published sidecar for the author; visitors
+        // have no fallback so they read the sidecar as-is).
         const ls = lsRead();
-        if (ls && typeof ls === 'object') j = Object.assign({}, ls, j || {});
+        if (ls && typeof ls === 'object') j = Object.assign({}, j || {}, ls);
         // Merge: sidecar loses to any in-memory change that raced ahead of
         // the fetch (drop or clear) so neither is clobbered by hydration.
         if (j && typeof j === 'object') {
