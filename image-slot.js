@@ -92,6 +92,19 @@
 
 (() => {
   const STATE_FILE = '.image-slots.state.json';
+  // localStorage fallback: in runtimes where the host write bridge is not
+  // available (no window.omelette.writeFile), dropped images persist here.
+  const LS_KEY = 'image-slots:' + STATE_FILE;
+  function lsRead() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY)) || null; } catch (e) { return null; }
+  }
+  let lsWarned = false;
+  function lsWrite() {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(slots)); }
+    catch (e) {
+      if (!lsWarned) { lsWarned = true; alert('Image storage is full \u2014 this image may not survive a refresh. Remove some images or use smaller ones.'); }
+    }
+  }
 
   // Unsplash terms require visible attribution wherever their photos
   // display, and every link back to unsplash.com must carry utm referral
@@ -174,6 +187,10 @@
     loadP = fetch(STATE_FILE)
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
+        // Merge in the localStorage fallback under the sidecar (sidecar wins
+        // per-key when both exist), then let in-memory changes win over both.
+        const ls = lsRead();
+        if (ls && typeof ls === 'object') j = Object.assign({}, ls, j || {});
         // Merge: sidecar loses to any in-memory change that raced ahead of
         // the fetch (drop or clear) so neither is clobbered by hydration.
         if (j && typeof j === 'object') {
@@ -215,11 +232,13 @@
   // cannot happen in an unloading document anyway).
   function flushNow() {
     if (!loaded) return;
+    lsWrite();
     const w = window.omelette && window.omelette.writeFile;
     if (!w) return;
     try { Promise.resolve(w(STATE_FILE, JSON.stringify(slots))).catch(() => {}); } catch (e) {}
   }
   function save() {
+    lsWrite();
     if (saving) { saveDirty = true; return; }
     const w = window.omelette && window.omelette.writeFile;
     if (!w) return;
@@ -250,6 +269,9 @@
     // merged yet; the merge in load() keeps this change once the read lands.
     if (loaded) save(); else load().then(save);
   }
+
+  // With the localStorage fallback, persistence no longer requires the host
+  // write bridge — setSlot always lands somewhere durable.
 
   // ── Image downscale ─────────────────────────────────────────────────────
   // Encode through a canvas so the sidecar carries resized bytes, not the
@@ -1086,8 +1108,9 @@
       this._ring.style.borderRadius = mask ? '' : radius;
       this._ring.style.display = mask ? 'none' : '';
 
-      // Controls and reframe entry gate on this so share links stay read-only.
-      const editable = !!(window.omelette && window.omelette.writeFile);
+      // Controls and reframe entry gate on this. With the localStorage
+      // fallback, edits persist even without the host write bridge.
+      const editable = true;
       this.toggleAttribute('data-editable', editable);
       this._sub.style.display = editable ? '' : 'none';
 
